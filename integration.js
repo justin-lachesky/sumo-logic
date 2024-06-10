@@ -172,9 +172,10 @@ const getJobMessages = async (entity, options) => {
   if (createdJobId) {
     results = await gaxios.request({
       method: 'GET',
-      url: `https://api${options.apiDeployment.value}sumologic.com/api/v1/search/jobs/${createdJobId.jobId}/messages?offset=0&limit=10`
+      url: `https://api${options.apiDeployment.value}sumologic.com/api/v1/search/jobs/${createdJobId.jobId}/records?offset=0&limit=50`
     });
   }
+  results.data.messages = results.data.records;
   return {
     entity,
     data:
@@ -189,15 +190,22 @@ function getSummary(data) {
   let cache = {};
 
   if (Object.keys(data).length > 0) {
-    const totalMessages = data.messages.length;
-    tags.push(`Messages: ${totalMessages}`);
+    const totalRecords = data.messages.length;
+    tags.push(`Sources: ${totalRecords}`);
+  }
+
+  if (Object.keys(data).length > 0) {
+    const totalCount = Object.values(data.messages).reduce((sum, currentObject) => {
+      return sum + parseInt(currentObject.map.count,10);
+    }, 0);
+    tags.push(`Messages: ${totalCount}`);
   }
 
   if (Object.keys(data).length > 0) {
     data.messages.map((message) => {
-      if (!cache[message.map._source]) {
-        tags.push(`_Source: ${message.map._source}`);
-        cache[message.map._source] = true;
+      if (!cache[message.map._sourcecategory]) {
+        tags.push(`src: ${message.map._sourcecategory}`);
+        cache[message.map._sourcecategory] = true;
       }
     });
   }

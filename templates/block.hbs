@@ -6,7 +6,7 @@
         class="nav-link {{if message.showMessages "active"}}"
         href="#"
       >
-        Message #{{inc index}}
+        Record #{{inc index}}
       </a>
     </li>
     <li class="nav-item">
@@ -37,7 +37,13 @@
 
   {{#if message.showMessages}}
     <div class="tab-container fields-block scrollable-block mt-1">
-      <pre>{{message.map._raw}}</pre>
+      {{#each-in message.map as |key value|}}
+        {{#if (eq key "_sourcecategory")}}
+          <span class="p-value">{{value}}</span>
+          {{else}}
+          <span class="p-key">{{key}}:</span><span class="p-value">{{value}}</span>
+        {{/if}}
+      {{/each-in}}
     </div>
   {{/if}}
 
